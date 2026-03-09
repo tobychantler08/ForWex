@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Placement Map - ForWex</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+</head>
+<body>
+
+<h1>Placement Map</h1>
+<div id="map" style="height:400px;"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  var map = L.map('map').setView([51.5074, -0.1278], 10);
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+  L.marker([51.5074, -0.1278]).addTo(map)
+    .bindPopup("Example Placement: Google")
+    .openPopup();
+</script>
+
+<a href="index.html">Back to Home</a>
+<a href="placements.html">View Placements</a>
+
+</body>
+</html>
