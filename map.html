@@ -11,17 +11,18 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-  var map = L.map('map').setView([51.5074, -0.1278], 10);
+  var map = L.map('map').setView([51.5074, -0.1278], 12);
 
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-  L.marker([51.5074, -0.1278]).addTo(map)
-    .bindPopup("Example Placement: Google")
-    .openPopup();
+  // Load placements from JSON
+  fetch('data/placements.json')
+    .then(response => response.json())
+    .then(placements => {
+      placements.forEach(p => {
+        L.marker([p.lat, p.lng]).addTo(map)
+          .bindPopup(p.company + ": " + p.title);
+      });
+    })
+    .catch(err => console.log("Error loading placements:", err));
 </script>
-
-<a href="index.html">Back to Home</a>
-<a href="placements.html">View Placements</a>
-
-</body>
-</html>
