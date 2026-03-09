@@ -1,20 +1,26 @@
 [
   {
+    "id": "google",
     "company": "Google",
     "title": "Software Engineering Placement",
     "lat": 51.5074,
-    "lng": -0.1278
+    "lng": -0.1278,
+    "attending": 3
   },
   {
+    "id": "deloitte",
     "company": "Deloitte",
     "title": "Business Internship",
     "lat": 51.5155,
-    "lng": -0.0922
+    "lng": -0.0922,
+    "attending": 1
   },
   {
+    "id": "bbc",
     "company": "BBC",
     "title": "Media Work Experience",
     "lat": 51.5099,
-    "lng": -0.1181
+    "lng": -0.1181,
+    "attending": 5
   }
 ]
