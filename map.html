@@ -2,30 +2,43 @@
 <html>
 
 <head>
-  <title>Map - ForWex</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-  <link rel="stylesheet" href="style.css">
+
+<title>Placement Map</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
 </head>
 
 <body>
 
 <header>
-  <h1>ForWex</h1>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="placements.html">Placements</a>
-    <a href="map.html">Map</a>
-  </nav>
+
+<h1>ForWex</h1>
+
+<nav>
+<a href="index.html">Home</a>
+<a href="placements.html">Placements</a>
+<a href="map.html">Map</a>
+</nav>
+
 </header>
 
 <div class="container">
 
+<h1>Placement Map</h1>
+
 <div class="map-container">
-  <div id="map" style="height:500px; flex:2;"></div>
-  <div id="info-panel" style="flex:1; padding:15px; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-    <h3>Select a placement</h3>
-    <p>Click a marker to see details here.</p>
-  </div>
+
+<div id="map" style="height:500px; flex:2;"></div>
+
+<div id="info">
+
+<h3>Placement Info</h3>
+<p>Click a marker</p>
+
+</div>
+
 </div>
 
 </div>
@@ -34,145 +47,83 @@
 
 <script>
 
-// Global arrays
-let markers = [];
-let placements = [];
-let students = [];
-let myPlacements = JSON.parse(localStorage.getItem("myPlacements")) || [];
-
-// Initialize map
-var map = L.map('map').setView([51.5074, -0.1278], 12);
+var map = L.map('map').setView([51.5074,-0.1278],11);
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-// Marker icons
-const greenIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  iconSize: [25,41],
-  iconAnchor: [12,41],
-  popupAnchor: [1,-34]
-});
 
-const orangeIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  iconSize: [25,41],
-  iconAnchor: [12,41],
-  popupAnchor: [1,-34]
-});
+/* placements */
 
-const redIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  iconSize: [25,41],
-  iconAnchor: [12,41],
-  popupAnchor: [1,-34]
-});
+const placements = [
 
-// Load JSON data
-Promise.all([
-  fetch('data/placements.json').then(res => res.json()),
-  fetch('data/students.json').then(res => res.json())
-])
-.then(([placementData, studentData]) => {
+{
+id:"google",
+name:"Google",
+title:"Software Engineering Placement",
+lat:51.5033,
+lng:-0.1195,
+students:["Alex","Sam","Jamie"]
+},
 
-  placements = placementData;
-  students = studentData;
+{
+id:"deloitte",
+name:"Deloitte",
+title:"Business Internship",
+lat:51.5154,
+lng:-0.0839,
+students:["Taylor"]
+},
 
-  placements.forEach(p => {
-
-    let attendingStudents = students
-      .filter(s => s.placement === p.id)
-      .map(s => s.name);
-
-    // Include current user if they joined
-    let totalAttending = [...attendingStudents];
-    if(myPlacements.includes(p.id) && !totalAttending.includes("You")){
-      totalAttending.push("You");
-    }
-
-    // Choose marker icon
-    let icon;
-    if(totalAttending.length >= 3){
-      icon = greenIcon;
-    } else if(totalAttending.length >= 1){
-      icon = orangeIcon;
-    } else {
-      icon = redIcon;
-    }
-
-    const marker = L.marker([p.lat, p.lng], { icon: icon }).addTo(map);
-
-    marker.placementId = p.id;
-    markers.push(marker);
-
-    const popupContent = `<b>${p.company}</b><br>${p.title}<br>${totalAttending.length} students attending`;
-
-    marker.bindPopup(popupContent)
-      .on('click', function() {
-        const panel = document.getElementById('info-panel');
-        panel.dataset.current = p.id;
-
-        panel.innerHTML = `
-          <h3>${p.company}</h3>
-          <p>${p.title}</p>
-          <p><strong>${totalAttending.length} students attending</strong></p>
-          ${totalAttending.length ? totalAttending.join("<br>") : '<p>No students attending yet</p>'}
-          <br>
-          <button onclick="joinPlacement('${p.id}')">I'm attending</button>
-        `;
-      });
-
-  });
-
-});
-
-// Join placement function
-function joinPlacement(id){
-  if(!myPlacements.includes(id)){
-    myPlacements.push(id);
-    localStorage.setItem("myPlacements", JSON.stringify(myPlacements));
-    alert("You are now attending this placement!");
-
-    // Update marker and panel
-    const p = placements.find(pl => pl.id === id);
-    const attendingStudents = students
-      .filter(s => s.placement === id)
-      .map(s => s.name);
-    const totalAttending = [...attendingStudents, "You"];
-    updateMarkerIcon(id, totalAttending.length);
-
-    // Update info panel if showing this placement
-    const panel = document.getElementById("info-panel");
-    if(panel.dataset.current === id){
-      panel.innerHTML = `
-        <h3>${p.company}</h3>
-        <p>${p.title}</p>
-        <p><strong>${totalAttending.length} students attending</strong></p>
-        ${totalAttending.join("<br>")}
-        <br>
-        <button onclick="joinPlacement('${id}')">I'm attending</button>
-      `;
-    }
-  }
+{
+id:"bbc",
+name:"BBC",
+title:"Media Work Experience",
+lat:51.5187,
+lng:-0.1430,
+students:["Ella","Noah","Lucas","Sofia","Liam"]
 }
 
-// Helper to update marker icon
-function updateMarkerIcon(id, totalCount){
-  markers.forEach(m => {
-    if(m.placementId === id){
-      let icon;
-      if(totalCount >= 3){
-        icon = greenIcon;
-      } else if(totalCount >= 1){
-        icon = orangeIcon;
-      } else {
-        icon = redIcon;
-      }
-      m.setIcon(icon);
-    }
-  });
+];
+
+
+/* markers */
+
+placements.forEach(p=>{
+
+let marker = L.marker([p.lat,p.lng]).addTo(map);
+
+marker.bindPopup(p.name);
+
+marker.on("click",function(){
+
+let info = document.getElementById("info");
+
+info.innerHTML =
+
+"<h3>"+p.name+"</h3>"+
+"<p>"+p.title+"</p>"+
+"<p>"+p.students.length+" students attending</p>"+
+"<button onclick=\"joinPlacement('"+p.id+"')\">I'm attending</button>";
+
+});
+
+});
+
+
+function joinPlacement(id){
+
+let joined = JSON.parse(localStorage.getItem("joined")) || [];
+
+if(!joined.includes(id)){
+
+joined.push(id);
+
+localStorage.setItem("joined", JSON.stringify(joined));
+
+alert("You joined this placement!");
+
+}
+
 }
 
 </script>
